@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="{{ url_for('static', filename='js/util.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery-v3.6.4.min.js') }}"></script>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+            
+        <script src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+        
+
+    </head>
+    <style>
+        .bodybody{
+          font-size: small;
+        }
+      </style>
+    <body>
+        {% raw %}
+        
+        <div id="tarjetaVue">
+            <title>Tarjeta -  (#{{ server_data.tarjeta.codigo }})</title>
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Cinderella v2.5  - {{ server_data.tarjeta.nombre }} (#{{ server_data.tarjeta.codigo }}) </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    </div>
+                </div>
+            </nav>
+            
+            <div>
+                <div class="row">
+                    <div class="col-lg-3 col-sm-12">
+                        <ul class="list-group">
+                            <li class="list-group-item active" aria-current="true"><a href="/tarjeta/200">Entradas</a></li></li>
+                            <li class="list-group-item">En contruccion</li>
+                            <li class="list-group-item">En contruccion</li>
+                            <li class="list-group-item">En contruccion</li>
+                            <li class="list-group-item"><a href="/configuracion">Configuración</a></li>
+                          </ul>
+                    </div>
+                    <div class="col-lg-9  col-sm-12">
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="table table-hoover table-striped table-form text-center bodybody">
+                                    <thead>
+                                        <tr>
+                                            <th>EPG LABEL</th>
+                                            <th>NOMBRE ALARMA</th>
+                                            <th>VALOR</th>
+                                            <th>UNIDAD</th>
+                                            <th>VER GRAFICA</th>
+                                            <th>DESCARGAR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="sensor in server_data.info_sensores">
+                                            <td>{{ sensor.epgLabel }}</td>
+                                            <td>{{ sensor.texto_largo }}</td>
+                                            <td>{{ sensor.valor }}</td>
+                                            <td>{{ sensor.unidad }}</td>
+                                            <td><input type="checkbox" class="table-control" v-model="ver_grafica[sensor.epgLabel]" @change="updateChart()"></td>
+                                            <td><input type="button" class="btn btn-sm btn-outline-info" @click="downloadCSV(sensor)" value="CSV"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">Configuración</button>
+                                </div> 
+                            </div>
+
+                            <div class="col-12">
+                                <canvas id="graficaSensores"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel"  style="height: 500px;">
+                <div class="offcanvas-header">
+                    <h6 class="offcanvas-title" id="offcanvasBottomLabel">Configuración  de tarjeta - {{ server_data.tarjeta.nombre }}( #{{ server_data.tarjeta.codigo }}) </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+    
+                    <div>
+                        <form  @submit.prevent="guardarConfiguracion">
+                            <input type="hidden" class="form-control" name="_id" v-model="server_data.tarjeta._id">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <table class="table table-hoover table-striped table-form text-center bodybody">
+                                        <thead>
+                                            <tr>
+                                                <th>epgID</th>
+                                                <th>Usado</th>
+                                                <th>epgLabel</th>
+                                                <th>convVolts</th>
+                                                <th>Offset</th>
+                                                <th>Slope</th>
+                                                <th>Tipo</th>
+                                                <th>Unidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="alarma in server_data.tarjeta.alarmasconfig" :key="alarma.epgID">
+                                                <td>{{ alarma.epgID }}</td>
+                                                <td>
+                                                <select class="form-select table-select" name="usado" v-model="alarma.usado" required>
+                                                    <option value="si">Sí</option>
+                                                    <option value="no">No</option>
+                                                </select>
+                                                </td>
+                                                <td><input type="text" class=" form-control table-control"  name="epgLabel" v-model="alarma.epgLabel" required></td>
+                                                <td><input type="text" class="form-control table-control"  name="convVolts" v-model="alarma.convVolts" required></td>
+                                                <td><input type="text" class="form-control table-control"  name="offset" v-model="alarma.offset" required></td>
+                                                <td><input type="text" class="form-control table-control"  name="slope" v-model="alarma.slope" required></td>
+                                                <td>
+                                                <select class="form-select table-select" name="tipo" v-model="alarma.tipo" required>
+                                                    <option value="DIG">DIG</option>
+                                                    <option value="ANA">ANA</option>
+                                                </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control table-control text-center"  name="slope" v-model="alarma.unidad" required>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Nombre</span>
+                                        <input type="text" class="form-control" placeholder="Nombre" aria-label="Nombre"  name="nombre" v-model="server_data.tarjeta.nombre" required>
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Codigo</span>
+                                        <input type="text" class="form-control" placeholder="Codigo" aria-label="Codigo" name="codigo" v-model="server_data.tarjeta.codigo"  required>
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Puerto</span>
+                                        <select class="form-select" name="tipo" v-model="server_data.tarjeta.puerto">
+                                            <option v-for="prt in server_data.puertos" :value="prt">{{prt}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="input-group-text">IP Traps</span>
+                                        <input type="text" class="form-control col-12" id="ip1" name="iptrap[0]" placeholder="IP 1" v-model="server_data.tarjeta.iptrap[0]" required>
+                                        <input type="text" class="form-control col-12" id="ip2" name="iptrap[1]" placeholder="IP 2" v-model="server_data.tarjeta.iptrap[1]">
+                                        <input type="text" class="form-control col-12" id="ip3" name="iptrap[2]" placeholder="IP 3" v-model="server_data.tarjeta.iptrap[2]">
+                                        <input type="text" class="form-control col-12" id="ip4" name="iptrap[3]" placeholder="IP 4" v-model="server_data.tarjeta.iptrap[3]">
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <div class="col-12">
+                                            <input type="submit" class="btn btn-sm btn-primary" value="Guardar cambios">
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endraw %}
+
+        <script src="{{ url_for('static', filename='js/vue2.5.16.js') }}"></script>
+        <script>
+
+            var server_data = {{ server_data }};
+
+            var tarjetaVue = new Vue({
+                el: '#tarjetaVue',
+                // data: {
+                //     tarjeta: {
+                //         nombre: 'Entradas',
+                //         codigo: '200',
+                //         iptrap: ["192.0.0.1", "192.0.0.2", "192.0.0.3"],
+                //         alarmasconfig: [
+                //         { epgID: 1, usado: 'si', epgLabel: 'E_SE_PTA1', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 2, usado: 'si', epgLabel: 'E_SE_IMP1', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 3, usado: 'si', epgLabel: 'E_DET_MVT1', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 4, usado: 'si', epgLabel: 'E_DET_HMO', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 5, usado: 'si', epgLabel: 'E_ALM_EXT', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 6, usado: 'si', epgLabel: 'E_DES_EXT', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 7, usado: 'si', epgLabel: 'E_VES_FAL', convVolts: 1000, offset: 0.8, slope: 0.03, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 8, usado: 'si', epgLabel: 'E_VES_DTP', convVolts: 1000, offset: 0, slope: 0.01, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 9, usado: 'si', epgLabel: 'E_VES_INC', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 10, usado: 'si', epgLabel: 'E_AEX_AA1', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 11, usado: 'si', epgLabel: 'E_AEX_AA2', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 12, usado: 'si', epgLabel: 'E_AEX_AA3', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' },
+                //         { epgID: 13, usado: 'si', epgLabel: 'E_AEX_AA4', convVolts: 10, offset: 0, slope: 1, tipo: 'DIG', unidad: 'V' }
+                //         ],
+                //     }
+                // },
+            data: {
+                    chart: null,
+                    ver_grafica: [],
+                    agrandar_grafica : false,
+                    server_data : server_data
+                },
+                methods: {
+                    guardarConfiguracion() {
+                        fetch("/guardartarjeta", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify(this.server_data.tarjeta)
+                        })
+                        .then(response => {
+                        if (response.ok) {
+                            alert("Los datos se han enviado correctamente.");
+                        } else {
+                            alert("Hubo un error al enviar los datos. Por favor, inténtalo de nuevo.");
+                        }
+                        })
+                        .catch(error => {
+                        alert("Hubo un error al enviar los datos. Por favor, inténtalo de nuevo.");
+                        console.log(error);
+                        });
+                    },
+                    listenerDataSocket(socket_data) {
+                        this.server_data.info_sensores = socket_data.info_sensores;
+                        this.server_data.nuevas_notif = socket_data.nuevas_notif;
+                        this.server_data.puertos = socket_data.puertos;
+                        this.server_data.tarjeta = socket_data.tarjeta;
+                        this.updateChart();
+                    },
+                    initializeChart() {
+                        const ctx = document.getElementById('graficaSensores').getContext('2d');
+                        this.chart = new Chart(ctx, {
+                            type: 'line',
+                            data: {labels: [], datasets: []},
+                            options: {
+                                responsive: true
+                            }
+                        });
+                    },
+                    updateChart() {
+                        this.chart.data.datasets = [];
+                        this.chart.data.labels = this.server_data.info_sensores[0].historial.map(item => {return item.hora_reg;});
+
+                        this.server_data.info_sensores.forEach((itm) => {
+                            if(this.ver_grafica[itm.epgLabel]){
+
+                                this.chart.data.datasets.push({
+                                    label: itm.texto_largo,
+                                    data: itm.historial.map(item => {return item.valor;}),
+                                    fill: false
+                                });
+                            }
+                        });
+                        
+                        this.chart.update();
+                    },
+                    downloadCSV(sensor){
+                        var name = sensor.texto_largo
+                        const csvContent = this.convertArrayToCSV(sensor.historial);
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        const url = URL.createObjectURL(blob);
+                        link.setAttribute('href', url);
+                        link.setAttribute('download', name);
+                        link.style.visibility = 'hidden';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        },
+                    convertArrayToCSV(array) {
+                        let csv = 'valor,hora_reg\n';
+                        array.forEach(obj => {
+                            csv += `${obj.valor},${obj.hora_reg}\n`;
+                        });
+                        return csv;
+                    }
+                },
+                mounted() {
+                    const socket = io('ws://localhost:5000');
+
+                    socket.on("connect", function(){
+                        socket.send("User connected!");
+                    });
+
+                    socket.on('socket_tarjeta' + this.server_data.tarjeta.codigo, (socket_data) => {
+                        socket_data = JSON.parse(socket_data.replace(/ObjectId\('([a-zA-Z0-9]+)'\)/g, "'$1'").replaceAll("'", "\""));
+                        this.listenerDataSocket(socket_data);
+                    });
+
+                    this.initializeChart();
+                },
+            });
+
+        </script>
+    </body>
+   
+</html>

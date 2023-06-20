@@ -1,0 +1,144 @@
+[{
+  "_id": "6481a9d064e81dee9f9b365d",
+  "nombre": "Entradas - 1",
+  "codigo": "200",
+  "iptrap": [
+    "192.0.0.1",
+    "192.0.0.2",
+    "192.0.0.3",
+    "11111111111"
+  ],
+  "alarmasconfig": [
+    {
+      "epgID": 1,
+      "usado": "no",
+      "epgLabel": "E_SE_PTA1",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 2,
+      "usado": "si",
+      "epgLabel": "E_SE_IMP1",
+      "convVolts": 10,
+      "offset": "0",
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 3,
+      "usado": "si",
+      "epgLabel": "E_DET_MVT1",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 4,
+      "usado": "si",
+      "epgLabel": "E_DET_HMO",
+      "convVolts": 10,
+      "offset": "0",
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 5,
+      "usado": "si",
+      "epgLabel": "E_ALM_EXT",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 6,
+      "usado": "si",
+      "epgLabel": "E_DES_EXT",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 7,
+      "usado": "si",
+      "epgLabel": "E_VES_FAL",
+      "convVolts": 1000,
+      "offset": 0.8,
+      "slope": 0.03,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 8,
+      "usado": "si",
+      "epgLabel": "E_VES_DTP",
+      "convVolts": 1000,
+      "offset": 0,
+      "slope": 0.01,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 9,
+      "usado": "si",
+      "epgLabel": "E_VES_INC",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 10,
+      "usado": "si",
+      "epgLabel": "E_AEX_AA1",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 11,
+      "usado": "si",
+      "epgLabel": "E_AEX_AA2",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 12,
+      "usado": "si",
+      "epgLabel": "E_AEX_AA3",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    },
+    {
+      "epgID": 13,
+      "usado": "si",
+      "epgLabel": "E_AEX_AA4",
+      "convVolts": 10,
+      "offset": 0,
+      "slope": 1,
+      "tipo": "DIG",
+      "unidad": "V"
+    }
+  ],
+  "puerto": "COM1"
+}]

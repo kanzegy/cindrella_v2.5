@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fundamentos Vue</title>
+</head>
+<body>
+    <h1>fundamentos Vue.js</h1>
+
+    {% raw %}
+    <div id="formulario">
+      <form @submit.prevent="submitForm">
+        <label for="nombre">nombre:</label>
+        <input type="text" id="nombre" v-model="formData.nombre" required><br><br>
+        <label for="email">edad:</label>
+        <input type="number" id="edad" v-model="formData.edad" required><br><br>
+        <label for="email">traps:</label>
+        <input type="number" id="traps" v-model="formData.traps[0]" required><br><br>
+        <input type="number" id="traps" v-model="formData.traps[1]" required><br><br>
+        <input type="submit" value="Enviar">
+      </form>
+    </div>
+    {% endraw %}
+
+    <script src="{{ url_for('static', filename='js/vue2.5.16.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vue/formulario.js') }}"></script>
+</body>
+</html>

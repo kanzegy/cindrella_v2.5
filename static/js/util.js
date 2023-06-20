@@ -1,0 +1,1 @@
+function ObjectId (str){return str;}

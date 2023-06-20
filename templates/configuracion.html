@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="{{ url_for('static', filename='js/util.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery-v3.6.4.min.js') }}"></script>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+            
+        <script src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+        
+
+    </head>
+    <style>
+        .bodybody{
+          font-size: small;
+        }
+      </style>
+    <body>
+        {% raw %}
+        <div id="configuracionView">
+            <title>Configuracion global</title>
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Cinderella v2.5  - Configuración General </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    </div>
+                </div>
+            </nav>
+            
+            <div>
+                <div class="row">
+                    <div class="col-lg-3 col-sm-12">
+                        <ul class="list-group">
+                            <li class="list-group-item"><a href="/tarjeta/200">Entradas</a></li></li>
+                            <li class="list-group-item">En contruccion</li>
+                            <li class="list-group-item">En contruccion</li>
+                            <li class="list-group-item">En contruccion</li>
+                            <li class="list-group-item active" aria-current="true"><a href="/configuracion">Configuración</a></li>
+                          </ul>
+                          <hr>
+                    </div>
+                    <div class="col-lg-9 col-sm-12">
+                        <div class="row">
+
+                            <div class="col-12">
+                                <h4>Configuraciones generales</h>
+                                <h6>Datos de Red</h6>
+                                
+                                <div class="input-group">
+                                    <span class="input-group-text">IP Local:</span>
+                                    <input type="text" class="form-control" :class="{ 'border-danger-subtle text-danger': !validations.ipValid }" id="server-address" v-model="server_data.config.serverIpAddress" @change="validateInputsFormats"></br>
+                                </div>
+                                    
+                                <div class="input-group">
+                                    <span class="input-group-text">Máscara de Subred</span>
+                                    <input type="text" class="form-control" :class="{ 'border-danger-subtle text-danger': !validations.submaskValid }" id="submask" v-model="server_data.config.submask" @change="validateInputsFormats"></br>
+                                </div>
+
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Gateway</span>
+                                    <input type="text" class="form-control" :class="{ 'border-danger-subtle text-danger': !validations.gatewayValid }" id="gateway" v-model="server_data.config.gateway" @change="validateInputsFormats"></br>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12 col-md-6">
+                                        <label for="actualizacion">Frecuencia de Actualización: {{ server_data.config.frecuencia }} minutos ({{ (server_data.config.frecuencia/60).toFixed(2) }} hrs)</label>
+                                        <input type="range" class="form-range" id="actualizacion" v-model="server_data.config.frecuencia" min="1" max="1440">
+                                    </div>
+    
+                                    <div class="col-12 col-md-6">
+                                    <label for="antiguedad">Antigüedad Máxima: {{ server_data.config.antiguedad }} meses</label>
+                                    <input type="range" class="form-range" id="antiguedad" v-model="server_data.config.antiguedad" min="6" max="24">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <input class="btn btn-sm btn-primary" value="Guardar datos de red" @click = "guardarConfiguracionDeRed">
+                            </div>
+
+                            <hr style="margin: 20px 0px 20px 0px; border-bottom: 1px solid #ffffff !important;">
+                            
+                            <div class="col-12">
+                                <table class="table table-hoover table-striped table-form text-center bodybody">
+                                    <thead>
+                                        <tr>
+                                            <th>Clave</th>
+                                            <th>Nombre Alarma</th>
+                                            <th>Usado</th>
+                                            <th>Texto Largo</th>
+                                            <th>Límite</th>
+                                            <th>Logica</th>
+                                            <th>OID Set</th>
+                                            <th>OID Clear</th>
+                                            <th>Origen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="alarma_c in server_data.alarmas_config" :key="alarma_c.clave">
+                                            <td>{{ alarma_c.clave }}</td>
+                                            <td>
+                                                <input class="form-control table-control text-center" type="text" v-model="alarma_c.nombre_alarma" />
+                                            </td>
+                                            <td>
+                                                <select class="table-select form-select" v-model="alarma_c.usado">
+                                                    <option value="si">Si</option>
+                                                    <option value="no">No</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input class="form-control table-control text-center" type="text" v-model="alarma_c.texto_largo" />
+                                            </td>
+                                            <td>
+                                                <input class="form-control table-control text-center" type="number" v-model="alarma_c.limite" />
+                                            </td>
+                                            <td>
+                                                <select class="table-select form-select" v-model="alarma_c.logica">
+                                                    <option value="NC">NC</option>
+                                                    <option value="NA">NA</option>
+                                                </select>
+                                            </td>
+                                            <td>{{ alarma_c.oid_set }}</td>
+                                            <td>{{ alarma_c.oid_clear }}</td>
+                                            <td>
+                                                <input class="form-control table-control text-center" type="text" v-model="alarma_c.origen" />
+                                            </td>
+                                            <td>
+                                                <input type="button" class="btn btn-sm btn-primary" @click = "GuardaConfiguracionAlarmas(alarma_c)" value="Guardar" style="width: inherit;">
+                                            </td>
+                                            <td>
+                                                <input type="button" class="btn btn-sm btn-danger" @click = "revertir(alarma_c)" value="Revertir" style="width: inherit;">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                </div>
+            </div>
+        </div>
+        {% endraw %}
+
+        <script src="{{ url_for('static', filename='js/vue2.5.16.js') }}"></script>
+        <script>
+
+            var server_data = {{ server_data }};
+            var configuracionVue = new Vue({
+                el: '#configuracionView',
+                // data: {
+                //     server_data : {config : {
+                //         frecuencia : 1,
+                //         antiguedad : 6,
+                //         serverIpAddress : "",
+                //         submask : ""
+                        
+                //     },
+                //     alarmas_config:  [
+                //         { clave: 1, nombre_alarma: 'Alarma 1', usado: 'si', texto_largo: 'Texto largo 1', limite: 10, logica: 'NC', oid_set: 'OID Set 1', oid_clear: 'OID Clear 1', origen: 'Origen 1' },
+                //         { clave: 2, nombre_alarma: 'Alarma 2', usado: 'no', texto_largo: 'Texto largo 2', limite: 20, logica: 'NA', oid_set: 'OID Set 2', oid_clear: 'OID Clear 2', origen: 'Origen 2' },
+                //         { clave: 3, nombre_alarma: 'Alarma 3', usado: 'si', texto_largo: 'Texto largo 3', limite: 30, logica: 'NC', oid_set: 'OID Set 3', oid_clear: 'OID Clear 3', origen: 'Origen 3' },
+                //     ]},
+                //     validations :  {
+                //         ipValid : true,
+                //         submaskValid : true,
+                //         gatewayValid : true,
+                //     }
+
+                // },
+                data : {
+                    "server_data" : server_data, 
+                    validations :  {
+                        ipValid : true,
+                        submaskValid : true,
+                        gatewayValid : true,
+                    }
+                },
+                methods: {
+                    validateInputsFormats() {
+                        const ipPattern = /^((\d{1,3}\.){3}\d{1,3})?$/;
+                        this.validations.ipValid        = ipPattern.test(this.server_data.config.serverIpAddress);
+                        this.validations.submaskValid   = ipPattern.test(this.server_data.config.submask);
+                        this.validations.gatewayValid   = ipPattern.test(this.server_data.config.gateway);
+                    },
+                    guardarConfiguracionDeRed() {
+                        fetch("/guardarconfiguracidered", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify(this.server_data.config)
+                        })
+                        .then(response => {
+                        if (response.ok) {
+                            alert("Los datos se han enviado correctamente.");
+                        } else {
+                            alert("Hubo un error al enviar los datos. Por favor, inténtalo de nuevo.");
+                        }
+                        })
+                        .catch(error => {
+                        alert("Hubo un error al enviar los datos. Por favor, inténtalo de nuevo.");
+                        console.log(error);
+                        });
+                    },
+                    GuardaConfiguracionAlarmas(conf_alarma) {
+                        fetch("/guardarconfiguraciondealarma", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify(conf_alarma)
+                        })
+                        .then(response => {
+                        if (response.ok) {
+                            alert("Los datos se han enviado correctamente.");
+                        } else {
+                            alert("Hubo un error al enviar los datos. Por favor, inténtalo de nuevo.");
+                        }
+                        })
+                        .catch(error => {
+                        alert("Hubo un error al enviar los datos. Por favor, inténtalo de nuevo.");
+                        console.log(error);
+                        });
+                    },
+                    listenerData(data) {
+                        console.log(data)
+                    },
+                },
+                mounted() {
+                },
+            });
+
+        </script>
+    </body>
+   
+</html>

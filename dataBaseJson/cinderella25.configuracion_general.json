@@ -1,0 +1,10 @@
+[{
+  "_id": {
+    "$oid": "649154a06dcb907dad266cba"
+  },
+  "frecuencia": 1,
+  "antiguedad": 6,
+  "serverIpAddress": "1",
+  "submask": "2",
+  "gateway": "3"
+}]
